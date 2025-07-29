@@ -1,41 +1,60 @@
 # LineChart.vue
-
 <script setup>
-import { ref, watch } from 'vue'
-import { Bar } from 'vue-chartjs'   // заменили Line на Bar
+import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   Title,
   Tooltip,
   Legend,
-  BarElement,           // импортируем BarElement вместо LineElement
+  BarElement,
   CategoryScale,
-  LinearScale,
-  PointElement,
+  LinearScale
 } from 'chart.js'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 const props = defineProps({
-  chartData: Object,
-})
-
-const localChartData = ref({ ...props.chartData })
-
-watch(
-  () => props.chartData,
-  (newData) => {
-    localChartData.value = JSON.parse(JSON.stringify(newData))
+  chartData: {
+    type: Object,
+    required: true,
+    validator: value => {
+      return value.labels && value.datasets
+    }
   },
-  { deep: true, immediate: true }
-)
-
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-}
+  options: {
+    type: Object,
+    default: () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          titleFont: { size: 14 },
+          bodyFont: { size: 12 },
+          padding: 12,
+          usePointStyle: true,
+        }
+      }
+    })
+  }
+})
 </script>
 
 <template>
-  <Bar :data="localChartData" :options="options" />  <!-- используем Bar вместо Line -->
+  <Bar
+    :data="chartData"
+    :options="options"
+    class="chart"
+  />
 </template>
+
+<style scoped>
+.chart {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+</style>

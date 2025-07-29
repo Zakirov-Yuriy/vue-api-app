@@ -1,5 +1,34 @@
-# Vue 3 + Vite
+# Wildberries Analytics Dashboard
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+SPA приложение для анализа данных, построенное на Vue 3 с использованием Composition API.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+# Функциональность
+
+Приложение включает 4 основные страницы:
+
+1. Продажи - Анализ продаж по датам, складам и регионам
+2. Заказы- Просмотр заказов с возможностью фильтрации
+3. Склады - Мониторинг остатков товаров на складах
+4. Поступления - Анализ поступающих товаров
+
+На каждой странице реализовано:
+- Таблица с данными
+- Интерактивные фильтры
+- Пагинация
+- Визуализация данных (графики)
+
+# Технологии
+
+- Vue 3 (Composition API)
+- Vue Router
+- Chart.js для визуализации данных
+- Vite для сборки
+
+
+# Скриншоты интерфейса
+
+# Cтраница заказы
+![Скриншот дашборда](images/Orders.png)
+
+# Cтраница остаток по складу
+![Пример фильтров](./images/Stocks.png)
