@@ -1,11 +1,9 @@
-# OrdersPage.vue
-
 <template>
   <div>
     <h1>Заказы</h1>
 
     <!-- Фильтры -->
-    <div class="filters">
+    <div class="table-filters">
       <label>Дата от: <input type="date" v-model="dateFrom" /></label>
       <label>Дата до: <input type="date" v-model="dateTo" /></label>
       <label>
@@ -26,53 +24,59 @@
 
     <!-- Загрузка и ошибка -->
     <div v-if="loading">Загрузка данных...</div>
-    <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="error" class="error-message">{{ error }}</div>
 
-    <!-- Таблица -->
-    <table v-if="paginatedOrders.length" border="1" cellspacing="0" cellpadding="5">
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Артикул</th>
-          <th>Сумма</th>
-          <th>Скидка %</th>
-          <th>Область</th>
-          <th>Склад</th>
-          <th>Отменён</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="order in paginatedOrders" :key="order.g_number + order.date">
-          <td>{{ order.date }}</td>
-          <td>{{ order.supplier_article }}</td>
-          <td>{{ Number(order.total_price).toFixed(2) }}</td>
-          <td>{{ order.discount_percent }}%</td>
-          <td>{{ order.oblast }}</td>
-          <td>{{ order.warehouse_name }}</td>
-          <td>{{ order.is_cancel ? 'Да' : 'Нет' }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Пагинация -->
-    <div v-if="totalPages > 1" class="pagination">
-      <button :disabled="currentPage === 1" @click="currentPage--">←</button>
-      <span>Страница {{ currentPage }} из {{ totalPages }}</span>
-      <button :disabled="currentPage === totalPages" @click="currentPage++">→</button>
+    <!-- Обёртка таблицы -->
+    <div class="table-container">
+      <table class="data-table" v-if="paginatedOrders.length">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Артикул</th>
+            <th class="text-right">Сумма</th>
+            <th class="text-center">Скидка %</th>
+            <th>Область</th>
+            <th>Склад</th>
+            <th class="text-center">Отменён</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="order in paginatedOrders" :key="order.g_number + order.date">
+            <td>{{ order.date }}</td>
+            <td>{{ order.supplier_article }}</td>
+            <td class="text-right">{{ formatPrice(order.total_price) }}</td>
+            <td class="text-center">{{ order.discount_percent }}%</td>
+            <td>{{ order.oblast }}</td>
+            <td>{{ order.warehouse_name }}</td>
+            <td class="text-center">{{ order.is_cancel ? 'Да' : 'Нет' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- Пагинация -->
+    <Pagination
+      v-if="totalPages > 1"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      @prev="currentPage--"
+      @next="currentPage++"
+    />
+
     <!-- Комбинированный график -->
-    <div v-if="statsByDate.length" class="chart-container">
+    <div class="chart-container" v-if="statsByDate.length">
       <h2>Заказы по датам</h2>
-      <CombinedChart :statsByDate="statsByDate" />
+      <CombinedChart :stats-by-date="statsByDate" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import axios from 'axios'
-import CombinedChart from '../components/CombinedChart.vue'
+import { ref, computed, watch } from 'vue'
+import apiService from '@/services/apiService'
+import CombinedChart from '@/components/CombinedChart.vue'
+import Pagination from '@/components/Pagination.vue'
+import '@/assets/styles/table-styles.css' // Подключаем общие стили таблиц
 
 const orders = ref([])
 const loading = ref(false)
@@ -85,18 +89,16 @@ const selectedWarehouse = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 20
 
-const API_URL = 'http://109.73.206.144:6969/api/orders'
-const API_KEY = 'E6kUTYrYwZq2tN4QEtyzsbEBk3ie'
-
 // Уникальные значения для фильтров
 const uniqueRegions = computed(() =>
   [...new Set(orders.value.map(o => o.oblast))].filter(Boolean)
 )
+
 const uniqueWarehouses = computed(() =>
   [...new Set(orders.value.map(o => o.warehouse_name))].filter(Boolean)
 )
 
-// Фильтрация заказов по выбранным фильтрам
+// Фильтрация заказов
 const filteredOrders = computed(() =>
   orders.value.filter(order =>
     (!selectedRegion.value || order.oblast === selectedRegion.value) &&
@@ -111,18 +113,15 @@ const paginatedOrders = computed(() => {
   return filteredOrders.value.slice(start, start + itemsPerPage)
 })
 
-// Формируем URL запроса с параметрами
-function buildUrl() {
-  const params = new URLSearchParams()
-  if (dateFrom.value) params.append('dateFrom', dateFrom.value)
-  if (dateTo.value) params.append('dateTo', dateTo.value)
-  params.append('page', '1')
-  params.append('limit', '500')
-  params.append('key', API_KEY)
-  return `${API_URL}?${params.toString()}`
+// Форматирование цены
+const formatPrice = (price) => {
+  return Number(price).toLocaleString('ru-RU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
 }
 
-// Получаем данные с сервера
+// Загрузка данных
 async function fetchOrders() {
   if (!dateFrom.value || !dateTo.value) {
     error.value = 'Пожалуйста, выберите даты "от" и "до".'
@@ -134,9 +133,13 @@ async function fetchOrders() {
   error.value = null
 
   try {
-    const response = await axios.get(buildUrl())
-    orders.value = response.data.data || []
-    currentPage.value = 1 // Сбрасываем страницу при новой загрузке
+    orders.value = await apiService.fetchData('orders', {
+      dateFrom: dateFrom.value,
+      dateTo: dateTo.value,
+      page: 1,
+      limit: 500
+    })
+    currentPage.value = 1
   } catch (e) {
     error.value = 'Ошибка загрузки: ' + e.message
   } finally {
@@ -144,18 +147,7 @@ async function fetchOrders() {
   }
 }
 
-// При изменении дат подгружаем данные
-watch([dateFrom, dateTo], ([from, to]) => {
-  if (from && to) {
-    fetchOrders()
-  } else {
-    error.value = 'Пожалуйста, выберите даты "от" и "до".'
-    orders.value = []
-  }
-})
-
-
-// Данные для графика — считаем количество заказов и сумму по датам
+// Данные для графика
 const statsByDate = computed(() => {
   const map = {}
 
@@ -176,40 +168,15 @@ const statsByDate = computed(() => {
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
+
+// Наблюдатели
+watch([dateFrom, dateTo], ([from, to]) => {
+  if (from && to) {
+    fetchOrders()
+  } else {
+    error.value = 'Пожалуйста, выберите даты "от" и "до".'
+    orders.value = []
+  }
+})
 </script>
 
-<style scoped>
-.filters {
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-table {
-  margin-top: 20px;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 8px;
-  text-align: left;
-}
-
-.pagination {
-  margin-top: 1rem;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.error {
-  color: red;
-  margin-bottom: 1rem;
-}
-
-.chart-container {
-  margin-top: 2rem;
-}
-</style>
