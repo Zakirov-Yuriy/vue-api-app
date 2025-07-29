@@ -1,8 +1,11 @@
+// index.js
+
 import { createRouter, createWebHistory } from 'vue-router'
 import SalesPage from '../views/SalesPage.vue'
 import OrdersPage from '../views/OrdersPage.vue'
 import StocksPage from '../views/StocksPage.vue'
 import IncomesPage from '../views/IncomesPage.vue'
+
 
 const routes = [
   { path: '/sales', component: SalesPage },
