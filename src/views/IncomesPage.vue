@@ -1,3 +1,5 @@
+# IncomesPage.vue
+
 <template>
   <div>
     <h1>Поступления</h1>

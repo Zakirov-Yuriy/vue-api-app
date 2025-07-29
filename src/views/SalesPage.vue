@@ -1,3 +1,5 @@
+# SalesPage.vue
+
 <template>
   <div>
     <h1>Продажи</h1>

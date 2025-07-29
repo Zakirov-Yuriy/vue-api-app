@@ -1,3 +1,5 @@
+# CombinedChart.vue
+
 <template>
   <div>
     <canvas ref="canvas"></canvas>

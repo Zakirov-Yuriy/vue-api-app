@@ -1,3 +1,5 @@
+# LineChart.vue
+
 <script setup>
 import { ref, watch } from 'vue'
 import { Bar } from 'vue-chartjs'   // заменили Line на Bar
