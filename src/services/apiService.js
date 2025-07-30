@@ -1,7 +1,10 @@
-// apiService.js
 import axios from 'axios'
 
-const API_BASE_URL = 'http://109.73.206.144:6969/api'
+// Для разработки - локальный прокси, для продакшена - абсолютный URL
+const API_BASE_URL = import.meta.env.DEV
+  ? '/api'
+  : 'http://109.73.206.144:6969/api'
+
 const API_KEY = 'E6kUTYrYwZq2tN4QEtyzsbEBk3ie'
 
 export default {
@@ -11,6 +14,10 @@ export default {
         params: {
           ...params,
           key: API_KEY
+        },
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       })
       return response.data.data || response.data

@@ -7,16 +7,22 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 vue-api-app/node_modules
 dist
 dist-ssr
 *.local
 
+# JetBrains IDE
+.idea/*
+*.iml
+*.ipr
+*.iws
+modules.xml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.idea/
 .DS_Store
 *.suo
 *.ntvs*
