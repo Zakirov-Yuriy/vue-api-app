@@ -1,5 +1,5 @@
 
-/* Обновленные стили таблиц */
+/* стили таблиц */
 .data-table {
   border-collapse: separate;
   border-spacing: 0;
@@ -33,7 +33,7 @@
   background-color: #f5f7fa;
 }
 
-/* Обновленные фильтры */
+/* фильтры */
 .table-filters {
   background: #f8f9fa;
   padding: 1rem;

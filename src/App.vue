@@ -3,11 +3,11 @@
 <template>
   <div>
     <nav>
-      <NavBar />
+      <NavBar/>
 
 
     </nav>
-    <router-view />
+    <router-view/>
   </div>
 </template>
 <script>

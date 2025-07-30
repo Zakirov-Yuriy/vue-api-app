@@ -76,6 +76,7 @@
 <script setup>
 import {ref, computed, watch, onMounted} from 'vue'
 import apiService from '../services/apiService'
+import {formatDate} from '../services/apiService' // Импортируйте напрямую
 import LineChart from '../components/LineChart.vue'
 import Pagination from '../components/Pagination.vue'
 
@@ -93,7 +94,7 @@ async function fetchStocks() {
   error.value = null
 
   try {
-    const today = apiService.formatDate(new Date())
+    const today = formatDate(new Date())
     stocks.value = await apiService.fetchData('stocks', {
       dateFrom: today,
       dateTo: today
@@ -168,7 +169,7 @@ onMounted(fetchStocks)
 </script>
 
 <style scoped>
-/* Стили остаются без изменений */
+
 .filters {
   margin-bottom: 1rem;
   display: flex;
